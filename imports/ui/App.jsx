@@ -14,19 +14,75 @@ import TeamList from './Team-list';
 import TeamStats from './Team-stats';
 import Player from './Player';
 import AccountsWrapper from './AccountsWrapper';
+import Edit from './EditPlayer';
+
+const tempPlayer = {
+  name: 'Temp player',
+  team: 'Lynda',
+  ballManipulation: 2,
+  kickingAbilities: 3,
+  passingAbilities: 2,
+  duelTackling: 1,
+  fieldCoverage: 2,
+  blockingAbilities: 0,
+  gameStrategy: 1,
+  playmakingRisks: 2,
+  notes: 'This player is only temporary'
+};
 
 export class App extends Component {
   constructor(props) {
     super(props);
 
     // setting up the state
-    this.state = { players: [] };
+    this.state = {
+      currentPlayer: tempPlayer,
+      showEditPlayer: false
+    };
+    this.updateCurrentPlayer = this.updateCurrentPlayer.bind(this);
+    this.showEditForm = this.showEditForm.bind(this);
+    this.showTeamStats = this.showTeamStats.bind(this);
   }
 
   renderPlayers() {
     return this.props.players.map(player => (
-      <TeamList key={player._id} player={player} />
+      <TeamList
+        key={player._id}
+        player={player}
+        updateCurrentPlayer={this.updateCurrentPlayer}
+      />
     ));
+  }
+
+  updateCurrentPlayer(player) {
+    this.setState({
+      currentPlayer: player
+    });
+  }
+
+  showEditForm() {
+    this.setState({
+      showEditPlayer: true
+    });
+  }
+
+  showTeamStats() {
+    this.setState({
+      showEditPlayer: false
+    });
+  }
+
+  showForm() {
+    if (this.state.showEditPlayer === true) {
+      return (
+        <Edit
+          currentPlayer={this.state.currentPlayer}
+          showTeamStats={this.showTeamStats}
+        />
+      );
+    } else {
+      return <TeamStats players={this.props.players} />;
+    }
   }
 
   render() {
@@ -37,24 +93,36 @@ export class App extends Component {
             title="Soccer Application"
             iconClassNameRight="muidocs-icon-navigation-expand-more"
             showMenuIconButton={false}
+            style={{ backgroundColor: '#0277BD' }}
           >
             <AccountsWrapper />
           </AppBar>
           <div className="row">
             <div className="col s12 m7">
-              <Player />
+              <Player
+                player={this.state.currentPlayer}
+                showEditForm={this.showEditForm}
+              />
             </div>
             <div className="col s12 m5">
               <h2>Team list</h2>
-              <Link to="/new" className="waves-effect waves-light btn">
+              <Link
+                to="/new"
+                className="waves-effect waves-light btn light-blue darken-3"
+              >
                 Add player
               </Link>
               <Divider />
               <List>{this.renderPlayers()}</List>
               <Divider />
             </div>
-            <div className="col s12 m5">
-              <TeamStats />
+          </div>
+          <div className="row">
+            <div className="col s12">
+              <br />
+              <Divider />
+              {this.showForm()}
+              <Divider />
             </div>
           </div>
         </div>
